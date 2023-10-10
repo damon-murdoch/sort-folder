@@ -1,3 +1,68 @@
+<#
+.SYNOPSIS
+    Sorts files in a folder into subfolders based on the initial characters of their filenames.
+
+.DESCRIPTION
+    This script takes a folder path as input and organizes the files in that folder into subfolders.
+    Subfolders are created based on the initial characters of the filenames, and files are moved
+    into their respective subfolders. The script provides various options for customizing the sorting
+    process, including combining and splitting folders based on file count and applying prefix/suffix
+    to folder names.
+
+.PARAMETER Path
+    Path to the folder to sort (Default: Current file path).
+
+.PARAMETER Force
+    Force switch (If set, user will not be prompted to confirm).
+
+.PARAMETER Empty
+    Empty switch (If set, empty folders will also be created).
+
+.PARAMETER Combine
+    Combine switch (If set, folders containing fewer items nearby to each other can be combined).
+
+.PARAMETER Split
+    Split switch (If set, folders containing too many items can be separated).
+
+.PARAMETER WhatIf
+    WhatIf switch (If set, no changes will actually be made, and the expected output will be printed to the console).
+
+.PARAMETER Recurse
+    If this switch is set to true, the function will be called recursively on all folders created after they are created.
+    This will occur 'depth' times, by default this will be set to two layers.
+
+.PARAMETER Depth
+    The depth for which the application should run recursively if the recursive switch is set to true.
+    By default, this is set to two layers.
+
+.PARAMETER CurrentDepth
+    The depth for which the script is currently operating at. This is intended for use with recursive function calls
+    of the script and should not be supplied manually.
+
+.PARAMETER Upper
+    If this switch is set to true, the folder names will be converted to uppercase before being created.
+    Otherwise, they will be written as lowercase instead.
+
+.PARAMETER IncludeCount
+    If this switch is set to true, the number of files will be included in the name of the folder when created.
+
+.PARAMETER Prefix
+    Prefix for the folder, which will be added.
+
+.PARAMETER Suffix
+    Suffix for the folder, which will be added.
+
+.PARAMETER Threshold
+    Threshold for a folder to be broken up into multiple folders (i.e., the maximum size for any folders).
+    This will be set to 10% of the sample size by default.
+
+.NOTES
+    File sorting script created by Damon Murdoch (@SirScrubbington).
+    Date: 2023/10/09
+    Version: 1.0
+
+#>
+
 Param(
   # Path to the folder to sort (Default: Current file path)
   [Alias('p')][Parameter(Mandatory = $False)][String]$Path = '.', 
@@ -298,13 +363,11 @@ Try {
   
         # WhatIf switch not set
         If (-Not $WhatIf) {
-          Try
-          {
+          Try {
             # Create a new directory for the files
             Move-Item -Path $FilePath -Destination $FolderPath;
           }
-          Catch # Failed to move item
-          {
+          Catch { # Failed to move item
             Write-Output "Failed to move file '$FilePath'! $($_.Exception.Message)";
           }
         }
@@ -320,8 +383,7 @@ Try {
       Write-Output "Folder processing completed.";
     }
   }
-  Else # 1-2 folders
-  {
+  Else { # 1-2 folders
     Write-Output "Output would result in only one child folder - No modifications made.";
   }
 }
